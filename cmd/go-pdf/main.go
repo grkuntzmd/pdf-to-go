@@ -94,7 +94,7 @@ func main() {
 			fmt.Fprintf(os.Stderr, "Error parsing PDF for %s: %s\n", n, err)
 			continue
 		}
-		fmt.Printf("%+v\n", p.Document)
+		fmt.Printf("Document: %+v\n", *p.Document)
 	}
 }
 

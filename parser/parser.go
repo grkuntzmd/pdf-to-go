@@ -26,6 +26,7 @@ package parser
 
 import (
 	"io"
+	"strings"
 )
 
 type (
@@ -66,5 +67,28 @@ func (p *Parser) Parse() error {
 		return err
 	}
 
+	if err := p.parseStartXRef(); err != nil {
+		return err
+	}
+
 	return nil
+}
+
+// maxInt64 calculates the maximum of 2 int64 numbers.
+func maxInt64(a, b int64) int64 {
+	if a > b {
+		return a
+	}
+
+	return b
+}
+
+// trimEOL removes the end-of-line character(s) CR and LF from the given string.
+func trimEOL(s string) string {
+	i := strings.IndexAny(s, "\r\n")
+	if i >= 0 {
+		return s[:i]
+	}
+
+	return s
 }

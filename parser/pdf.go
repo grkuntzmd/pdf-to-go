@@ -26,7 +26,8 @@ package parser
 
 // Document contains the parsed PDF.
 type Document struct {
-	Version float32
+	Version         float32
+	StartXRefOffset int64
 }
 
 // NewDocument creates and initializes a new PDF Document.
