@@ -3,4 +3,4 @@
 cd "${0%/*}"
 
 buildInfo="`date -u '+%Y-%m-%dT%TZ'`|`git describe --always --long`|`git tag | tail -1`"
-go run -ldflags "-X main.buildInfo=${buildInfo} -s -w" ./cmd/go-pdf/main.go "$@"
+go run -ldflags "-X main.buildInfo=${buildInfo} -s -w" ./cmd/pdf-to-go/main.go "$@"

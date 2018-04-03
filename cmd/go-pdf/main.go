@@ -33,7 +33,7 @@ import (
 	"path"
 	"strings"
 
-	"github.com/grkuntzmd/go-pdf/parser"
+	"github.com/grkuntzmd/pdf-to-go/parser"
 )
 
 const maxMemoryFile = 10000000
