@@ -24,6 +24,82 @@
 
 package main
 
-func main() {
+import (
+	"bytes"
+	"flag"
+	"fmt"
+	"io/ioutil"
+	"os"
+	"path"
+	"strings"
 
+	"github.com/grkuntzmd/go-pdf/parser"
+)
+
+const maxMemoryFile = 10000000
+
+var (
+	buildInfo  string
+	buildStamp = "No BuildStamp provided"
+	gitHash    = "No GitHash provided"
+	version    = "No Version provided"
+)
+
+func main() {
+	if buildInfo != "" {
+		parts := strings.Split(buildInfo, "|")
+		if len(parts) >= 3 {
+			buildStamp = parts[0]
+			gitHash = parts[1]
+			version = parts[2]
+		}
+	}
+
+	flag.CommandLine.Usage = usage
+	flag.Parse()
+
+	for _, n := range flag.Args() {
+		f, err := os.Open(n)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Cannot open %s for reading\n", n)
+			continue
+		}
+
+		s, err := f.Stat()
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Cannot get information for file %s\n", n)
+			continue
+		}
+
+		// If the file is <= maxMemoryFile, just read it into a memory buffer, otherwise use the file.
+		var r parser.ReadReadAtSeeker = f
+		if s.Size() <= maxMemoryFile {
+			b, err := ioutil.ReadAll(f)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Cannot read %s\n", n)
+				continue
+			}
+
+			r = bytes.NewReader(b)
+		}
+
+		p, err := parser.NewParser(r)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error creating PDF parser for %s: %s\n", n, err)
+			continue
+		}
+
+		err = p.Parse()
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error parsing PDF for %s: %s\n", n, err)
+			continue
+		}
+		fmt.Printf("%+v\n", p.Document)
+	}
+}
+
+func usage() {
+	fmt.Fprintf(os.Stderr, "Usage: %s file ...\n", path.Base(os.Args[0]))
+	fmt.Fprintf(os.Stderr, "buildStamp: %s, gitHash: %s, version: %s\n", buildStamp, gitHash, version)
+	flag.PrintDefaults()
 }
